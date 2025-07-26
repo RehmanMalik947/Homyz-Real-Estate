@@ -21,7 +21,7 @@ export default function Hero() {
       <div className="relative z-10 max-w-7xl mx-auto grid md:grid-cols-2 items-center gap-8 md:gap-12">
         {/* Left Content */}
         <div className="w-full">
-          <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold mb-6 leading-tight">
+          <h1 className="text-5xl sm:text-6xl md:text-6xl font-bold mb-6 leading-tight">
             <span className="relative inline-block pr-4">Discover</span>
             <br />
             Most Suitable

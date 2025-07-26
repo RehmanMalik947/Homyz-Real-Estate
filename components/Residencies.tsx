@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { MdOutlineKeyboardArrowLeft, MdOutlineKeyboardArrowRight } from "react-icons/md";
 
@@ -19,59 +19,46 @@ interface Card {
 }
 
 const cards: Card[] = [
-  {
-    price: '35,853',
-    title: 'Citralan Puri Serang',
-    location: 'Ruko Puri Indah Residences Block A7, Lingkar Street, Cikasa, Serang, Banten',
-    image: r1,
-  },
-  {
-    price: '47,043',
-    title: 'Aliva Priva Jardin',
-    location: 'Jakarta Garden City Street, Cakung, Pulo Gadung, Jakarta Timur, DKI Jakarta',
-    image: r2,
-  },
-  {
-    price: '66,353',
-    title: 'Asatti Garden City',
-    location: 'Pahlawan Street VIII No.215, Cinangka, Sawangan, Depok, Jawa Barat',
-    image: r3,
-  },
-  {
-    price: '35,853',
-    title: 'Citralan Puri Serang',
-    location: 'Ruko Puri Indah Residences Block A7, Lingkar Street, Cikasa, Serang, Banten',
-    image: r1,
-  },
-  {
-    price: '58,999',
-    title: 'Green Avenue',
-    location: 'Green Street, Block 10, Karachi',
-    image: r2,
-  },
-  {
-    price: '45,000',
-    title: 'Palm Residency',
-    location: 'Main Boulevard, Lahore',
-    image: r3,
-  },
+  { price: '35,853', title: 'Citralan Puri Serang', location: 'Serang, Banten', image: r1 },
+  { price: '47,043', title: 'Aliva Priva Jardin', location: 'Jakarta Timur', image: r2 },
+  { price: '66,353', title: 'Asatti Garden City', location: 'Depok, Jawa Barat', image: r3 },
+  { price: '35,853', title: 'Citralan Puri Serang', location: 'Serang, Banten', image: r1 },
+  { price: '47,043', title: 'Aliva Priva Jardin', location: 'Jakarta Timur', image: r2 },
+  { price: '66,353', title: 'Asatti Garden City', location: 'Depok, Jawa Barat', image: r3 },
 ];
 
-const itemsPerPage = 4;
-
 export default function Residencies(): JSX.Element {
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const totalPages = Math.ceil(cards.length / itemsPerPage);
+  const [visibleCount, setVisibleCount] = useState(3);
+  const [startIndex, setStartIndex] = useState(0);
 
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentCards = cards.slice(startIndex, startIndex + itemsPerPage);
+  const updateVisibleCount = () => {
+    const width = window.innerWidth;
+    if (width >= 1024) setVisibleCount(4);
+    else if (width >= 768) setVisibleCount(3);
+    else if (width >= 640) setVisibleCount(2);
+    else setVisibleCount(1);
+    setStartIndex(0); // reset index on resize
+  };
+
+  useEffect(() => {
+    updateVisibleCount();
+    window.addEventListener('resize', updateVisibleCount);
+    return () => window.removeEventListener('resize', updateVisibleCount);
+  }, []);
+
+  const endIndex = startIndex + visibleCount;
+  const currentCards = cards.slice(startIndex, endIndex);
 
   const goToNext = () => {
-    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+    if (endIndex < cards.length) {
+      setStartIndex(startIndex + 1);
+    }
   };
 
   const goToPrevious = () => {
-    if (currentPage > 1) setCurrentPage(currentPage - 1);
+    if (startIndex > 0) {
+      setStartIndex(startIndex - 1);
+    }
   };
 
   return (
@@ -85,7 +72,7 @@ export default function Residencies(): JSX.Element {
           <Image src={logo4} alt="logo4" width={150} height={50} />
         </div>
 
-        {/* Section Headings + Arrow Buttons */}
+        {/* Headings and Arrows */}
         <div className="flex justify-between items-center mb-4">
           <div>
             <h2 className="text-2xl text-[#FFA500] font-semibold mb-1">Best Choices</h2>
@@ -94,14 +81,14 @@ export default function Residencies(): JSX.Element {
           <div className="flex items-center gap-4">
             <button
               onClick={goToPrevious}
-              disabled={currentPage === 1}
+              disabled={startIndex === 0}
               className="p-2 bg-white rounded-md text-xl shadow-md text-[#030EFF] disabled:opacity-50"
             >
               <MdOutlineKeyboardArrowLeft />
             </button>
             <button
               onClick={goToNext}
-              disabled={currentPage === totalPages}
+              disabled={endIndex >= cards.length}
               className="p-2 bg-white rounded-md text-xl shadow-md text-[#030EFF] disabled:opacity-50"
             >
               <MdOutlineKeyboardArrowRight />
@@ -109,8 +96,13 @@ export default function Residencies(): JSX.Element {
           </div>
         </div>
 
-        {/* Residencies Cards - 4 in a Row */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+        {/* Cards Grid */}
+        <div className={`grid gap-8
+          grid-cols-1
+          sm:grid-cols-2
+          md:grid-cols-3
+          lg:grid-cols-4
+        `}>
           {currentCards.map((card, i) => (
             <div
               key={i}
